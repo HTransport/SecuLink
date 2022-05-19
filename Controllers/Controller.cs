@@ -11,7 +11,7 @@ namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class Controller : Microsoft.AspNetCore.Mvc.ControllerBase
+    public class Controller : ControllerBase
     {
         Models.User_Methods userControl = new();
         //Models.Card_Methods cardControl = new();
