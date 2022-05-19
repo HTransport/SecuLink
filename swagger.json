@@ -1,0 +1,137 @@
+{
+    "swagger": "2.0",
+    "basePath": "/",
+    "host": "localhost:5001",
+    "info": {
+        "description": "SecuLink_API",
+        "version": "1.0.0",
+        "title": "SecuLink API",
+        "contact": {
+
+        }
+    },
+    "paths": {
+        "/Mailbox_Users": {
+            "post": {
+                "tags": [ "Controller" ],
+                "operationId": "Mailbox_Users",
+                "consumes": [ "application/json" ],
+                "parameters": [
+                    {
+                        "name": "Users_Req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "Username",
+                                "Request"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "/Response_Send"
+                    }
+                }
+            }
+        },
+        "/Mailbox_Cards": {
+            "post": {
+                "tags": [ "Controller" ],
+                "operationId": "Mailbox_Cards",
+                "consumes": [ "application/json" ],
+                "parameters": [
+                    {
+                        "name": "Cards_Req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "SerialNumber"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "/Response_Send"
+                    }
+                }
+            }
+        },
+        "/Response_Send": {
+            "get": {
+                "tags": [ "Controller" ],
+                "operationId": "Response_Send",
+                "produces": [ "application/json" ],
+                "parameters": [
+                    {
+                        "name": "resp",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    // ERROR - Zahtjev nije prošao kako treba
+                    //  0 - Traženi objekt ne postoji
+                    //  1 - Traženi zahtjev ne postoji
+                    // DONE - Zahtjev podnešen, nema poslanih objekata
+                    // EXISTS - Zahtjev podnešen, traženi objekt postoji
+                    // SENT - Zahtjev podnešen, objekt poslan na /Object_Send
+
+                    "200": {
+                        "description": "ERROR:0"
+                    },
+                    "201": {
+                        "description": "ERROR:1"
+                    },
+                    "202": {
+                        "description": "DONE"
+                    },
+                    "203": {
+                        "description": "EXISTS"
+                    },
+                    "204": {
+                        "description": "SENT"
+                    },
+                    "205": {
+                        "description": ""
+                    }
+                }
+            }
+
+        },
+        "/Object_Send": {
+            "get": {
+                "tags": [ "Controller" ],
+                "operationId": "Response_Send",
+                "produces": [ "application/json" ],
+                "parameters": [
+                    {
+                        "name": "obj",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    // ERROR - Zahtjev nije prošao kako treba
+                    //  0 - Traženi objekt ne postoji
+                    //  1 - Traženi zahtjev ne postoji
+                    // DONE - Zahtjev podnešen, nema poslanih objekata
+                    // EXISTS - Zahtjev podnešen, traženi objekt postoji
+                    // SENT - Zahtjev podnešen, objekt poslan na /Object_Send
+
+                    "201": {
+                        "description": ""
+                    }
+                }
+            }
+
+        }
+    }
+}
