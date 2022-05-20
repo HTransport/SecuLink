@@ -23,8 +23,10 @@ localhost:port/api/user
 
 DeleteUser(Username) - DELETE
 localhost:port/api/user/{Username}
-- returns bool
-- also deletes a card related to that user
+- returns string
+ - "Deleted User" if no card is found that binds to that user
+ - "Deleted User and Card" if a card was found
+- deletes a card related to that user if one exists
 
 GetUserByUsername(Username) - GET
 localhost:port/api/user/g/{Username}
