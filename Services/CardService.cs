@@ -17,7 +17,7 @@ namespace SecuLink.Services
         }
         public async Task<Card> Create(string SerialNumber, int Pin, int UserId)
         {
-            Card c = new Card() { SerialNumber = SerialNumber, Pin=Pin, UserId=UserId};
+            Card c = new() { SerialNumber = SerialNumber, Pin=Pin, UserId=UserId};
             _dbcont.Cards.Add(c);
             await _dbcont.SaveChangesAsync();
             return c;

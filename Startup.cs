@@ -30,10 +30,6 @@ namespace SecuLink
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "SecuLink", Version = "v1" });
-            });
             services.AddDbContext<Models.ApplicationDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IUserService, UserService>();
@@ -46,8 +42,6 @@ namespace SecuLink
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SecuLink v1"));
             }
 
             app.UseHttpsRedirection();

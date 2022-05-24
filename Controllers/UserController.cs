@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SecuLink.Tools;
 
 namespace SecuLink.Controllers
 {
@@ -24,9 +25,15 @@ namespace SecuLink.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
-            var a = await _userService.Create(user.Username, user.Password_Enc);
+            var u = await _userService.SelectByUsername(user.Username);
+            if (u.Username == user.Username)
+            {
+                var y = await _userService.Create(0, "Name already exists", "Name already exists", 0);
+                return Ok(y);
+            }
+            var a = await _userService.Create(user.Username, Encryptor.GetHashSha256(user.Password_Enc));
             return Ok(a);
-        } // 1
+        } // 0
         [HttpDelete("{Username}")]
         public async Task<IActionResult> DeleteUser(string Username)
         {
@@ -51,7 +58,7 @@ namespace SecuLink.Controllers
             var u = await _userService.SelectByUsername(user.Username);
             if (u is null)
                 return Ok(false);
-            bool result = user.Password_Enc == u.Password_Enc;
+            bool result = Encryptor.GetHashSha256(user.Password_Enc) == u.Password_Enc;
             return Ok(result);
         } // 1
     }

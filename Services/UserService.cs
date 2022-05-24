@@ -17,7 +17,20 @@ namespace SecuLink.Services
         }
         public async Task<User> Create(string Username, string Password_Enc)
         {
-            User u = new User() { Username = Username, Password_Enc = Password_Enc};
+            User u = new() { Username = Username, Password_Enc = Password_Enc};
+            _dbcont.Users.Add(u);
+            await _dbcont.SaveChangesAsync();
+            return u;
+        }
+
+        public async Task<User> Create(int Id, string Username, string Password_Enc, int a)
+        {
+            switch (a)
+            {
+                case 0: User u1 = new() { Id = Id, Username = Username, Password_Enc = Password_Enc };return u1;
+                default:break;
+            }
+            User u = new() { Username = Username, Password_Enc = Password_Enc };
             _dbcont.Users.Add(u);
             await _dbcont.SaveChangesAsync();
             return u;
