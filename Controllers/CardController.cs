@@ -40,5 +40,6 @@ namespace SecuLink.Controllers
             var card = await _cardService.SelectByUserId(user.Id);
             return Ok(card);
         } // 1
+
     }
 }
