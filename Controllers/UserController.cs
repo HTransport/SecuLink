@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SecuLink.Tools;
+using Microsoft.AspNetCore.Cors;
 
 namespace SecuLink.Controllers
 {
@@ -21,7 +22,7 @@ namespace SecuLink.Controllers
             _userService = userService;
             _cardService = cardService;
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {

@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace SecuLink
 {
@@ -62,6 +64,16 @@ namespace SecuLink
             {
                 endpoints.MapControllers();
             });
+        }
+        public static void Register(HttpConfiguration config)
+        {
+            config.EnableCors();
+
+            config.Routes.MapHttpRoute(
+                name: "SecuLink",
+                routeTemplate: "api/{controller}",
+                defaults: new { id = RouteParameter.Optional }
+            );
         }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http.Cors;
 
 namespace SecuLink.Controllers
 {
@@ -21,6 +22,7 @@ namespace SecuLink.Controllers
             _cardService = cardService;
         }
 
+        [EnableCors(origins: "https://localhost:3000", headers: "*", methods: "*")]
         [HttpPost]
         public async Task<IActionResult> CreateCard([FromBody] Card card)
         {
