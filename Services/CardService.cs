@@ -23,6 +23,19 @@ namespace SecuLink.Services
             return c;
         }
 
+        public async Task<Card> Create(int Id, string SerialNumber, int Pin, int UserId, int a)
+        {
+            switch (a)
+            {
+                case 0: Card c1 = new() { Id = Id, SerialNumber = SerialNumber, Pin = Pin }; return c1;
+                default: break;
+            }
+            Card c = new() { SerialNumber = SerialNumber, Pin = Pin, UserId = UserId };
+            _dbcont.Cards.Add(c);
+            await _dbcont.SaveChangesAsync();
+            return c;
+        }
+
         public async Task<bool> Delete(string SerialNumber)
         {
             var c = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
@@ -38,6 +51,12 @@ namespace SecuLink.Services
         public async Task<Card> SelectByUserId(int UserId)
         {
             var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.UserId == UserId);
+            return a;
+        }
+
+        public async Task<Card> SelectBySerialNumber(string SerialNumber)
+        {
+            var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
             return a;
         }
     }

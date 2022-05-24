@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SecuLink.Tools;
-using Microsoft.AspNetCore.Cors;
+using System.Web.Http.Cors;
 
 namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    //[EnableCors(origins: "https://localhost:3000", headers: "*", methods: "*")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -29,7 +30,7 @@ namespace SecuLink.Controllers
             var u = await _userService.SelectByUsername(user.Username);
             if (u.Username == user.Username)
             {
-                var y = await _userService.Create(0, "Name already exists", "Name already exists", 0);
+                var y = await _userService.Create(0, "User already exists", "User already exists", 0);
                 return Ok(y);
             }
             var a = await _userService.Create(user.Username, Encryptor.GetHashSha256(user.Password_Enc));
@@ -38,18 +39,27 @@ namespace SecuLink.Controllers
         [HttpDelete("{Username}")]
         public async Task<IActionResult> DeleteUser(string Username)
         {
-            var user = await _userService.SelectByUsername(Username);
-            await _userService.Delete(user.Id);
-            var card = await _cardService.SelectByUserId(user.Id);
+            var u = await _userService.SelectByUsername(Username);
+            if (u is null)
+            {
+                return Ok("User doesn't exist or already deleted");
+            }
+            await _userService.Delete(u.Id);
+            var card = await _cardService.SelectByUserId(u.Id);
             if (card is null)
                 return Ok("Deleted User");
             await _cardService.Delete(card.SerialNumber);
             return Ok("Deleted User and Card");
         } // 1
-        [HttpGet("g/{Username}")]
+        [HttpGet("{Username}")]
         public async Task<IActionResult> GetUserByUsername(string Username)
         {
             var user = await _userService.SelectByUsername(Username);
+            if (user is null)
+            {
+                var y = await _userService.Create(0, "User doesn't exist", "User doesn't exist", 0);
+                return Ok(y);
+            }
             return Ok(user);
         } // 1
         [HttpPost]
