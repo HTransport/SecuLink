@@ -32,7 +32,7 @@ namespace SecuLink.Controllers
                 return Ok(y);
             }
             var a = await _userService.Create(user.Username, Encryptor.GetHashSha256(user.Password_Enc));
-            return Ok(d);
+            return Ok(a);
         } // 1
         [HttpDelete("{Username}")]
         public async Task<IActionResult> DeleteUser(string Username)
