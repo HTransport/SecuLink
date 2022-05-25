@@ -34,7 +34,7 @@ namespace SecuLink
             {
                 options.AddDefaultPolicy(policy => 
                 {
-                    policy.WithOrigins("https://localhost:3000");
+                    policy.WithOrigins("http://localhost:3000");
                 });
             });
             services.AddControllers();
@@ -58,6 +58,8 @@ namespace SecuLink
 
             app.UseCors();
 
+            app.UseHttpsRedirection();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -68,6 +70,8 @@ namespace SecuLink
         public static void Register(HttpConfiguration config)
         {
             config.EnableCors();
+
+            config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
                 name: "SecuLink",

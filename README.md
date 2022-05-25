@@ -3,6 +3,8 @@ Top-notch service when it comes to your own vault.
 
 Web API built with ASP.NET Entity Framework Core 5, has all the basic functions for your users and cards.
 
+NOTE: ACCEPTS REQUESTS FROM http://localhost:3000 AND ITSELF ONLY !!!
+
 # Models
 User
 - Id (autonumber, not required)

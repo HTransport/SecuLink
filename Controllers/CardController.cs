@@ -11,7 +11,7 @@ namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[EnableCors(origins: "https://localhost:3000", headers: "*", methods: "*")]
+    [EnableCors(origins: "http://localhost:3000", headers: "*", methods: "*")]
     public class CardController : ControllerBase
     {
         private readonly IUserService _userService;
