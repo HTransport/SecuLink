@@ -33,6 +33,7 @@ namespace SecuLink.Controllers
 
             if (t is null)
                 return Ok("e pa nemre");
+
             if (t.Content != nte.Token)
                 return Ok("e pa nemre");
 
@@ -47,6 +48,7 @@ namespace SecuLink.Controllers
 
             return Ok(c);
         } // 1
+
         [HttpPost]
         [Route("deop")]
         public async Task<IActionResult> UnuthorizeUser([FromBody] NTE nte)
@@ -55,6 +57,7 @@ namespace SecuLink.Controllers
 
             if (t is null)
                 return Ok("e pa nemre");
+
             if (t.Content != nte.Token)
                 return Ok("e pa nemre");
 
@@ -69,6 +72,7 @@ namespace SecuLink.Controllers
 
             return Ok(c);
         } // 1
+
         [HttpPost]
         [Route("check")]
         public async Task<IActionResult> CheckUserAuth([FromBody] NTE nte)
@@ -77,6 +81,7 @@ namespace SecuLink.Controllers
 
             if (t is null)
                 return Ok("e pa nemre");
+
             if (t.Content != nte.Token)
                 return Ok("e pa nemre");
 

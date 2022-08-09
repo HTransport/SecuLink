@@ -28,11 +28,15 @@ namespace SecuLink.Controllers
         public async Task<IActionResult> CreateToken(int UserId) // kreiranje novog tokena će "pregaziti" već postojeći token
         {
             var t = await _tokenService.SelectByUserId(UserId);
+
             if (t is not null)
                 await _tokenService.Delete(t.UserId);
+
             var u = await _userService.SelectById(UserId);
+
             string token = TokenGenerator.GenerateBasic(u.Username);
             await _tokenService.Create(token, UserId); // DEBUG - koristi najveci overload metode
+
             return Ok(token);
         } // 1
 
@@ -41,11 +45,15 @@ namespace SecuLink.Controllers
         {
             var t = await _tokenService.SelectByUserId(UserId);
             DateTime dt = DateTime.Now;
+
             if(t is null)
                 return Ok(false);
+
             if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) >= dt)
                 return Ok(true);
+
             await _tokenService.Delete(UserId);
+
             return Ok(false);
         } // 1
 
@@ -53,9 +61,12 @@ namespace SecuLink.Controllers
         public async Task<IActionResult> DeleteToken(int UserId)
         {
             var t = await _tokenService.SelectByUserId(UserId);
+
             if (t is null)
                 return Ok(false);
+
             await _tokenService.Delete(t.UserId);
+
             return Ok(true);
         } // 1
     }

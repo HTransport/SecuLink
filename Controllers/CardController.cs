@@ -41,10 +41,12 @@ namespace SecuLink.Controllers
 
             if (c is not null)
                 return Ok(false);
-            var a = await _cardService.Create(cte.SerialNumber, cte.UserId);
-            return Ok(a);
 
+            var a = await _cardService.Create(cte.SerialNumber, cte.UserId);
+
+            return Ok(a);
         } // 1
+
         [HttpPost]
         [Route("delete")]
         public async Task<IActionResult> DeleteCard([FromBody] NTE nte)
@@ -70,6 +72,7 @@ namespace SecuLink.Controllers
             await _cardService.Delete(c.SerialNumber);
             return Ok(true);
         } // 1
+
         [HttpPost]
         [Route("get")]
         public async Task<IActionResult> GetCardByUsername([FromBody] NTE nte)
@@ -78,15 +81,20 @@ namespace SecuLink.Controllers
 
             if (t is null)
                 return Ok("e pa nemre");
+
             if (t.Content != nte.Token)
                 return Ok("e pa nemre");
 
             var user = await _userService.SelectByUsername(nte.Username);
+
             if (user is null)
                 return Ok("User with bound card doesn't exist");
+
             var card = await _cardService.SelectByUserId(user.Id);
+
             if (card is null)
                 return Ok("Card doesn't exist");
+
             return Ok(card);
         } // 1
     }

@@ -19,34 +19,24 @@ namespace SecuLink.Services
         public async Task<User> Create(string Username, string Password_Enc)
         {
             User u = new() { Username = Username, Password_Enc = Password_Enc};
-            _dbcont.Users.Add(u);
-            await _dbcont.SaveChangesAsync();
-            return u;
-        }
 
-        public async Task<User> Create(int Id, string Username, string Password_Enc, int a)
-        {
-            switch (a)
-            {
-                case 0: User u1 = new() { Id = Id, Username = Username, Password_Enc = Password_Enc };return u1;
-                default:break;
-            }
-            User u = new() { Username = Username, Password_Enc = Password_Enc };
             _dbcont.Users.Add(u);
             await _dbcont.SaveChangesAsync();
+
             return u;
         }
 
         public async Task<bool> Delete(int Id)
         {
             var a = await _dbcont.Users.FirstOrDefaultAsync(x => x.Id == Id);
-            if (a != null)
-            {
-                _dbcont.Users.Remove(a);
-                await _dbcont.SaveChangesAsync();
-                return true;
-            }
-            return false;
+
+            if (a is null)
+                return false;
+
+            _dbcont.Users.Remove(a);
+            await _dbcont.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<User> SelectByUsername(string Username)
@@ -64,8 +54,10 @@ namespace SecuLink.Services
         public async Task<NewUser> CreateNew(string Username)
         {
             NewUser u = new() { Username = Username, Pin = TokenGenerator.GeneratePin(8)};
+
             _dbcont.NewUsers.Add(u);
             await _dbcont.SaveChangesAsync();
+
             return u;
         }
 
@@ -78,13 +70,14 @@ namespace SecuLink.Services
         public async Task<bool> DeleteNew(string Username)
         {
             var a = await _dbcont.NewUsers.FirstOrDefaultAsync(a => a.Username == Username);
-            if (a != null)
-            {
-                _dbcont.NewUsers.Remove(a);
-                await _dbcont.SaveChangesAsync();
-                return true;
-            }
-            return false;
+
+            if (a is null)
+                return false;
+
+            _dbcont.NewUsers.Remove(a);
+            await _dbcont.SaveChangesAsync();
+
+            return true;
         }
     }
 }

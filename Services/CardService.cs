@@ -18,34 +18,24 @@ namespace SecuLink.Services
         public async Task<Card> Create(string SerialNumber, int UserId)
         {
             Card c = new() { SerialNumber = SerialNumber, UserId=UserId};
-            _dbcont.Cards.Add(c);
-            await _dbcont.SaveChangesAsync();
-            return c;
-        }
 
-        public async Task<Card> Create(int Id, string SerialNumber, int UserId, int a)
-        {
-            switch (a)
-            {
-                case 0: Card c1 = new() { Id = Id, SerialNumber = SerialNumber }; return c1;
-                default: break;
-            }
-            Card c = new() { SerialNumber = SerialNumber, UserId = UserId };
             _dbcont.Cards.Add(c);
             await _dbcont.SaveChangesAsync();
+
             return c;
         }
 
         public async Task<bool> Delete(string SerialNumber)
         {
             var c = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
-            if (c != null)
-            {
-                _dbcont.Cards.Remove(c);
-                await _dbcont.SaveChangesAsync();
-                return true;
-            }
-            return false;
+
+            if (c is null)
+                return false;
+
+            _dbcont.Cards.Remove(c);
+            await _dbcont.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<Card> SelectByUserId(int UserId)

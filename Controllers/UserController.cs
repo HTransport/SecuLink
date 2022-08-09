@@ -46,6 +46,7 @@ namespace SecuLink.Controllers
             var a = await _userService.Create(nute.Username, Encryptor.GetHashSha256(nute.Password_Enc, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ"));
             return Ok(a);
         } // 1
+
         [HttpPost]
         [Route("create/root")]
         public async Task<IActionResult> CreateUserDirect([FromBody] UEX user)
@@ -61,6 +62,7 @@ namespace SecuLink.Controllers
             var a = await _userService.Create(user.Username, Encryptor.GetHashSha256(user.Password_Enc, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ"));
             return Ok(a);
         } // 1
+
         [HttpPost]
         [Route("create/new")]
         public async Task<IActionResult> CreateNewUser([FromBody] NTE nte)
@@ -93,6 +95,7 @@ namespace SecuLink.Controllers
             var a = await _userService.CreateNew(nte.Username);
             return Ok(a);
         } // 1
+
         [HttpPost]
         [Route("delete")]
         public async Task<IActionResult> DeleteUser([FromBody] UTE ute)
@@ -132,6 +135,7 @@ namespace SecuLink.Controllers
 
             return Ok(true);
         } // 1
+
         [HttpPost]
         [Route("delete/new")]
         public async Task<IActionResult> DeleteNewUser([FromBody] NTE nte)
@@ -160,6 +164,7 @@ namespace SecuLink.Controllers
 
             return Ok(true);
         } // 1
+
         [HttpPost]
         [Route("get")]
         public async Task<IActionResult> GetUserByUsername([FromBody] NTE nte)
@@ -186,6 +191,7 @@ namespace SecuLink.Controllers
 
             return Ok(u);
         } // 1
+
         [HttpPost]
         [Route("get/new")]
         public async Task<IActionResult> GetNewUserByUsername([FromBody] NTE nte)
@@ -212,6 +218,7 @@ namespace SecuLink.Controllers
 
             return Ok(u);
         } // 1
+
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] User user)

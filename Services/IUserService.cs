@@ -10,7 +10,6 @@ namespace SecuLink.Services
     {
         Task<bool> Delete(int Id);
         Task<User> Create(string Username, string Password_Enc);
-        Task<User> Create(int Id, string Username, string Password_Enc, int a);
         Task<NewUser> CreateNew(string Username);
         Task<NewUser> SelectNewUserByUsername(string Username);
         Task<bool> DeleteNew(string Username);

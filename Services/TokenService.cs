@@ -18,34 +18,43 @@ namespace SecuLink.Services
         public async Task<Token> Create(string Content, int TTL, DateTime DOC, int UserId)
         {
             Token t = new() { Content = Content, TTL_seconds = TTL, DOC = DOC, UserId = UserId};
+
             _dbcont.Tokens.Add(t);
             await _dbcont.SaveChangesAsync();
+
             return t;
         }
 
         public async Task<Token> Create(string Content, DateTime DOC, int UserId)
         {
             Token t = new() { Content = Content, TTL_seconds = 3600, DOC = DOC, UserId = UserId };
+
             _dbcont.Tokens.Add(t);
             await _dbcont.SaveChangesAsync();
+
             return t;
         }
 
         public async Task<Token> Create(string Content, int UserId)
         {
             Token t = new() { Content = Content, TTL_seconds = 3600, DOC = DateTime.Now, UserId = UserId };
+
             _dbcont.Tokens.Add(t);
             await _dbcont.SaveChangesAsync();
+
             return t;
         }
 
         public async Task<bool> Delete(int UserId)
         {
             Token t = await _dbcont.Tokens.FirstOrDefaultAsync(a => a.UserId == UserId);
+
             if (t is null)
                 return false;
+
             _dbcont.Tokens.Remove(t);
             await _dbcont.SaveChangesAsync();
+
             return true;
         }
 
