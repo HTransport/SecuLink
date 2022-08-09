@@ -15,22 +15,22 @@ namespace SecuLink.Services
         {
             _dbcont = dbcont;
         }
-        public async Task<Card> Create(string SerialNumber, int Pin, int UserId)
+        public async Task<Card> Create(string SerialNumber, int UserId)
         {
-            Card c = new() { SerialNumber = SerialNumber, Pin=Pin, UserId=UserId};
+            Card c = new() { SerialNumber = SerialNumber, UserId=UserId};
             _dbcont.Cards.Add(c);
             await _dbcont.SaveChangesAsync();
             return c;
         }
 
-        public async Task<Card> Create(int Id, string SerialNumber, int Pin, int UserId, int a)
+        public async Task<Card> Create(int Id, string SerialNumber, int UserId, int a)
         {
             switch (a)
             {
-                case 0: Card c1 = new() { Id = Id, SerialNumber = SerialNumber, Pin = Pin }; return c1;
+                case 0: Card c1 = new() { Id = Id, SerialNumber = SerialNumber }; return c1;
                 default: break;
             }
-            Card c = new() { SerialNumber = SerialNumber, Pin = Pin, UserId = UserId };
+            Card c = new() { SerialNumber = SerialNumber, UserId = UserId };
             _dbcont.Cards.Add(c);
             await _dbcont.SaveChangesAsync();
             return c;

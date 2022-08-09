@@ -34,14 +34,16 @@ namespace SecuLink
             {
                 options.AddDefaultPolicy(policy => 
                 {
-                    policy.WithOrigins("http://localhost:3000");
+                    policy.WithOrigins("http://localhost:3000"); // origins mijenjas tu - JAKO BITNO
                 });
             });
             services.AddControllers();
             services.AddDbContext<Models.ApplicationDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICardService, CardService>();
+            services.AddScoped<IAuthService, AuthService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

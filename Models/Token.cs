@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 
 namespace SecuLink.Models
 {
-    public class Card
+    public class Token
     {
         public int Id { get; set; }
-        public string SerialNumber { get; set; }
+        public string Content { get; set; }
+        public int TTL_seconds { get; set; }
+        public DateTime DOC { get; set; }
         public int UserId { get; set; }
 
-        public User User { get; set; }
+        public User User;
     }
 }

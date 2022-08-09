@@ -9,8 +9,8 @@ namespace SecuLink.Services
     public interface ICardService
     {
         Task<bool> Delete(string SerialNumber);
-        Task<Card> Create(string SerialNumber, int Pin, int UserId);
-        Task<Card> Create(int Id, string SerialNumber, int Pin, int UserId, int a);
+        Task<Card> Create(string SerialNumber, int UserId);
+        Task<Card> Create(int Id, string SerialNumber, int UserId, int a);
         Task<Card> SelectByUserId(int UserId);
         Task<Card> SelectBySerialNumber(string SerialNumber);
     }
