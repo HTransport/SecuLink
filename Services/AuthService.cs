@@ -16,57 +16,53 @@ namespace SecuLink.Services
             _dbcont = dbcont;
         }
 
-        public async Task<bool> Authorize(string Username)
+        public async Task Authorize(string Username)
         {
             var u = await _dbcont.Users.FirstOrDefaultAsync(b => b.Username == Username);
 
-            if (u is null)
-                return false;
+            u.Role = true;
 
-            var a = await _dbcont.Admins.FirstOrDefaultAsync(c => c.UserId == u.Id);
-
-            if (a is not null)
-                return false;
-
-            a = new Admin() { UserId = u.Id };
-            
-            _dbcont.Admins.Add(a);
             await _dbcont.SaveChangesAsync();
-
-            return true;
         }
 
         public async Task<bool> CheckIfAuthorized(string Username)
         {
             var u = await _dbcont.Users.FirstOrDefaultAsync(b => b.Username == Username);
 
-            if (u is null)
-                return false;
-
-            var a = await _dbcont.Admins.FirstOrDefaultAsync(c => c.UserId == u.Id);
-
-            if (a is null)
-                return false;
-
-            return true;
+            return u.Role;
         }
 
-        public async Task<bool> Unauthorize(string Username)
+        public async Task Unauthorize(string Username)
         {
             var u = await _dbcont.Users.FirstOrDefaultAsync(b => b.Username == Username);
 
-            if (u is null)
-                return false;
+            u.Role = true;
 
-            var a = await _dbcont.Admins.FirstOrDefaultAsync(c => c.UserId == u.Id);
-
-            if (a is null)
-                return false;
-
-            _dbcont.Admins.Remove(a);
             await _dbcont.SaveChangesAsync();
+        }
+        public async Task<int> Authenticate(string token, ITokenService tokenService)
+        {
+            var t = await tokenService.SelectByContent(token);
 
-            return true;
+            if (t is null)
+                return 401;
+
+            t = await tokenService.SelectByUserId(t.UserId);
+
+            if (t is null)
+                return 401;
+
+            if (t.Content != token)
+                return 401;
+
+            DateTime dt = DateTime.Now;
+            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
+            {
+                await tokenService.Delete(t.UserId);
+                return 401;
+            }
+
+            return 200;
         }
     }
 }

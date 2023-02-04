@@ -1,18 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecuLink.Models;
 using SecuLink.RequestModels;
+using SecuLink.ResponseModels;
 using SecuLink.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SecuLink.Tools;
-using System.Web.Http.Cors;
+using Microsoft.AspNetCore.Cors;
+
 namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [EnableCors(origins: "http://localhost:3000", headers: "*", methods: "*")]
+    [EnableCors("React")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -31,207 +33,188 @@ namespace SecuLink.Controllers
         
         [HttpPost]
         [Route("create")]
-        public async Task<IActionResult> CreateUser([FromBody] NUTE nute)
+        public async Task<IActionResult> CreateUser([FromBody] ConfirmForm user)
         {
-            var u = await _userService.SelectNewUserByUsername(nute.Username);
+            var u = await _userService.SelectNewUserByUsername(user.Username);
 
             if (u is null)
-                return Ok(false);
+                return StatusCode(404);
 
-            if(u.Pin != nute.Pin)
-                return Ok(false);
+            if (u.Pin != user.Pin)
+                return StatusCode(403);
 
-            await _userService.DeleteNew(nute.Username);
+            await _userService.DeleteNew(user.Username);
             
-            var a = await _userService.Create(nute.Username, Encryptor.GetHashSha256(nute.Password_Enc, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ"));
-            return Ok(a);
-        } // 1
+            await _userService.Create(user.Username, u.FirstName, u.LastName, u.Role, u.Email, Encryptor.GetHashSha256(user.Password, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ"));
+
+            await _cardService.Create(u.SerialNumber, (await _userService.SelectByUsername(user.Username)).Id);
+
+            var User = await _userService.SelectByUsername(user.Username);
+
+            string token = TokenGenerator.GenerateBasic(User.Username);
+            await _tokenService.Create(token, User.Id);
+
+            return Ok(new TR(token, await _authService.CheckIfAuthorized(u.Username), u.Username));
+        } // 0
 
         [HttpPost]
-        [Route("create/root")]
-        public async Task<IActionResult> CreateUserDirect([FromBody] UEX user)
+        [Route("create/new")]
+        public async Task<IActionResult> CreateNewUser([FromBody] CreateForm user)
         {
-            if (user.Key != "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ")
-                return Ok("e pa nemre");
+            var result = await _authService.Authenticate(user.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
 
             var u = await _userService.SelectByUsername(user.Username);
 
             if (u is not null)
-                return Ok(false);
+                return StatusCode(409);
 
-            var a = await _userService.Create(user.Username, Encryptor.GetHashSha256(user.Password_Enc, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ"));
-            return Ok(a);
-        } // 1
-
-        [HttpPost]
-        [Route("create/new")]
-        public async Task<IActionResult> CreateNewUser([FromBody] NTE nte)
-        {
-            var t = await _tokenService.SelectByUserId(nte.EId);
-
-            if (t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            DateTime dt = DateTime.Now;
-            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
-            {
-                await _tokenService.Delete(nte.EId);
-                return Ok("e pa nemre");
-            }
-
-            var u = await _userService.SelectByUsername(nte.Username);
-
-            if (u is not null)
-                return Ok(false);
-
-            var n = await _userService.SelectNewUserByUsername(nte.Username);
+            var n = await _userService.SelectNewUserByUsername(user.Username);
 
             if (n is not null)
-                return Ok(false);
+                return StatusCode(409);
 
-            var a = await _userService.CreateNew(nte.Username);
-            return Ok(a);
-        } // 1
+            var pin = await _userService.CreateNew(user.Username, user.FirstName, user.LastName, user.Role, user.Email, user.SerialNumber);
+
+            return Ok(pin);
+        } // 0
+
+        [HttpPost]
+        [Route("edit")]
+        public async Task<IActionResult> EditUser([FromBody] EditForm user)
+        {
+            var result = await _authService.Authenticate(user.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
+
+            var u = await _userService.SelectByUsername(user.CurrentUsername);
+
+            if (u is null)
+                return StatusCode(404);
+
+            await _userService.Edit(user.CurrentUsername, user.Username, user.FirstName, user.LastName, u.Role, user.Email);
+
+            return Ok();
+        } // 0
 
         [HttpPost]
         [Route("delete")]
-        public async Task<IActionResult> DeleteUser([FromBody] UTE ute)
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteForm user)
         {
-            var t = await _tokenService.SelectByUserId(ute.EId);
+            var result = await _authService.Authenticate(user.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
 
-            if(t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != ute.Token)
-                return Ok("e pa nemre");
-
-            DateTime dt = DateTime.Now;
-            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
-            {
-                await _tokenService.Delete(ute.EId);
-                return Ok("e pa nemre");
-            }
-
-            var u = await _userService.SelectByUsername(ute.Username);
+            var u = await _userService.SelectByUsername(user.Username);
 
             if (u is null)
-                return Ok(false);
+                return StatusCode(404);
 
-            await _userService.Delete(u.Id);
+            await _userService.Delete(user.Username);
 
             var card = await _cardService.SelectByUserId(u.Id);
             var tk = await _tokenService.SelectByUserId(u.Id);
-            var au = await _authService.CheckIfAuthorized(u.Username);
 
             if (card is not null)
                 await _cardService.Delete(card.SerialNumber);
             if (tk is not null)
                 await _tokenService.Delete(tk.UserId);
-            if (au)
-                await _authService.Unauthorize(u.Username);
 
-            return Ok(true);
-        } // 1
+            return Ok();
+        } // 0
 
         [HttpPost]
         [Route("delete/new")]
-        public async Task<IActionResult> DeleteNewUser([FromBody] NTE nte)
+        public async Task<IActionResult> DeleteNewUser([FromBody] CreateForm user)
         {
-            var t = await _tokenService.SelectByUserId(nte.EId);
+            var result = await _authService.Authenticate(user.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
 
-            if (t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            DateTime dt = DateTime.Now;
-            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
-            {
-                await _tokenService.Delete(nte.EId);
-                return Ok("e pa nemre");
-            }
-
-            var u = await _userService.SelectNewUserByUsername(nte.Username);
+            var u = await _userService.SelectNewUserByUsername(user.Username);
 
             if (u is null)
-                return Ok(false);
+                return StatusCode(404);
 
             await _userService.DeleteNew(u.Username);
 
-            return Ok(true);
+            return Ok();
+        } // 0
+
+        [HttpPost]
+        [Route("list")]
+        public async Task<IActionResult> GetUsers([FromBody] ListForm lf)
+        {
+            var result = await _authService.Authenticate(lf.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
+
+            var list = await _userService.GetList();
+            List<UserListItem> outList = new();
+            if (lf.IsNew)
+                CurrentState.ResetLS();
+            else CurrentState.UsersLS += lf.NumOfElements;
+
+            try
+            {
+                for (int i = CurrentState.UsersLS; i < lf.NumOfElements + CurrentState.UsersLS; i++)
+                {
+                    if (list.ElementAtOrDefault(i) is null)
+                        break;
+                    outList.Add(list.ElementAtOrDefault(i));
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.ToString());
+            }
+            return Ok(outList);
         } // 1
 
         [HttpPost]
-        [Route("get")]
-        public async Task<IActionResult> GetUserByUsername([FromBody] NTE nte)
+        [Route("listnew")]
+        public async Task<IActionResult> GetNewUsers([FromBody] ListForm lf)
         {
-            var t = await _tokenService.SelectByUserId(nte.EId);
+            var result = await _authService.Authenticate(lf.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
 
-            if (t is null)
-                return Ok("e pa nemre");
+            var list = await _userService.GetListNew();
+            List<NewUser> outList = new();
+            if (lf.IsNew)
+                CurrentState.ResetLS();
+            else CurrentState.NewUsersLS += lf.NumOfElements;
 
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            DateTime dt = DateTime.Now;
-            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
+            try
             {
-                await _tokenService.Delete(nte.EId);
-                return Ok("e pa nemre");
+                for (int i = CurrentState.NewUsersLS; i < lf.NumOfElements + CurrentState.NewUsersLS; i++)
+                {
+                    if (list.ElementAtOrDefault(i) is null)
+                        break;
+                    outList.Add(list.ElementAtOrDefault(i));
+                }
             }
-
-            var u = await _userService.SelectByUsername(nte.Username);
-
-            if (u is null)
-                return Ok(false);
-
-            return Ok(u);
-        } // 1
-
-        [HttpPost]
-        [Route("get/new")]
-        public async Task<IActionResult> GetNewUserByUsername([FromBody] NTE nte)
-        {
-            var t = await _tokenService.SelectByUserId(nte.EId);
-
-            if (t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            DateTime dt = DateTime.Now;
-            if (t.DOC.AddSeconds(Convert.ToDouble(t.TTL_seconds)) < dt)
+            catch (Exception ex)
             {
-                await _tokenService.Delete(nte.EId);
-                return Ok("e pa nemre");
+                return Problem(ex.ToString());
             }
-
-            var u = await _userService.SelectNewUserByUsername(nte.Username);
-
-            if (u is null)
-                return Ok(false);
-
-            return Ok(u);
-        } // 1
+            return Ok(outList);
+        } // 0
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login([FromBody] User user)
+        public async Task<IActionResult> Login([FromBody] LoginForm user)
         {
             var u = await _userService.SelectByUsername(user.Username);
 
             if (u is null)
-                return Ok(false);
+                return StatusCode(404);
 
-            bool result = Encryptor.GetHashSha256(user.Password_Enc, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ") == u.Password_Enc;
+            bool result = Encryptor.GetHashSha256(user.Password, "P539Kw95nauPbZEymAwl2dT8AKcRFWjQ") == u.Password_Enc;
 
             if (!result)
-                return Ok(result);
+                return StatusCode(403);
 
             var t = await _tokenService.SelectByUserId(u.Id);
 
@@ -241,7 +224,7 @@ namespace SecuLink.Controllers
             string token = TokenGenerator.GenerateBasic(u.Username);
             await _tokenService.Create(token, u.Id);
 
-            return Ok(token);
-        } // 1
+            return Ok(new TR(token, await _authService.CheckIfAuthorized(u.Username), u.Username));
+        } // 0
     }
 }

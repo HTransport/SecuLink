@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SecuLink.Tools;
 
 namespace SecuLink
 {
@@ -13,6 +14,7 @@ namespace SecuLink
     {
         public static void Main(string[] args)
         {
+            CurrentState.ResetLS();
             CreateHostBuilder(args).Build().Run();
         }
 

@@ -1,101 +1,65 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SecuLink.Models;
 using SecuLink.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web.Http.Cors;
 using SecuLink.RequestModels;
+using SecuLink.ResponseModels;
+using Microsoft.AspNetCore.Cors;
+using SecuLink.Tools;
+
 namespace SecuLink.Controllers
 {
+    //
+    // UKLANJANJE??
+    //
     [ApiController]
     [Route("api/[controller]")]
-    [EnableCors(origins: "http://localhost:3000", headers: "*", methods: "*")]
+    [EnableCors("React")]
     public class CardController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly ICardService _cardService;
         private readonly ITokenService _tokenService;
+        private readonly IAuthService _authService;
 
-        public CardController(IUserService userService, ICardService cardService, ITokenService tokenService)
+        public CardController(IUserService userService, ICardService cardService, ITokenService tokenService, IAuthService authService)
         {
             _userService = userService;
             _cardService = cardService;
             _tokenService = tokenService;
+            _authService = authService;
         }
 
         [HttpPost]
-        [Route("create")]
-        public async Task<IActionResult> CreateCard([FromBody] CTE cte)
+        [Route("list")]
+        public async Task<IActionResult> GetCards([FromBody] ListForm lf)
         {
-            var t = await _tokenService.SelectByUserId(cte.EId);
+            var result = await _authService.Authenticate(lf.Token, _tokenService);
+            if (result != 200)
+                return StatusCode(result);
 
-            if (t is null)
-                return Ok("e pa nemre");
+            var list = await _cardService.GetList();
+            List<CU> outList = new();
+            if (lf.IsNew)
+                CurrentState.ResetLS();
+            else CurrentState.CardsLS += lf.NumOfElements;
 
-            if (t.Content != cte.Token)
-                return Ok("e pa nemre");
-
-            var c = await _cardService.SelectBySerialNumber(cte.SerialNumber);
-
-            if (c is not null)
-                return Ok(false);
-
-            var a = await _cardService.Create(cte.SerialNumber, cte.UserId);
-
-            return Ok(a);
-        } // 1
-
-        [HttpPost]
-        [Route("delete")]
-        public async Task<IActionResult> DeleteCard([FromBody] NTE nte)
-        {
-            var t = await _tokenService.SelectByUserId(nte.EId);
-
-            if (t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            var u = await _userService.SelectByUsername(nte.Username);
-
-            if (u is null)
-                return Ok(false);
-
-            var c = await _cardService.SelectByUserId(u.Id);
-
-            if (c is null)
-                return Ok(false);
-
-            await _cardService.Delete(c.SerialNumber);
-            return Ok(true);
-        } // 1
-
-        [HttpPost]
-        [Route("get")]
-        public async Task<IActionResult> GetCardByUsername([FromBody] NTE nte)
-        {
-            var t = await _tokenService.SelectByUserId(nte.EId);
-
-            if (t is null)
-                return Ok("e pa nemre");
-
-            if (t.Content != nte.Token)
-                return Ok("e pa nemre");
-
-            var user = await _userService.SelectByUsername(nte.Username);
-
-            if (user is null)
-                return Ok("User with bound card doesn't exist");
-
-            var card = await _cardService.SelectByUserId(user.Id);
-
-            if (card is null)
-                return Ok("Card doesn't exist");
-
-            return Ok(card);
+            try
+            {
+                for (int i = CurrentState.CardsLS; i < lf.NumOfElements + CurrentState.CardsLS; i++)
+                {
+                    if (list.ElementAtOrDefault(i) is null)
+                        break;
+                    outList.Add(list.ElementAtOrDefault(i));
+                }
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.ToString());
+            }
+            return Ok(outList);
         } // 1
     }
 }

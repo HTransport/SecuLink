@@ -1,9 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 
 namespace SecuLink.Tools
 {
+    /// <summary>
+    /// koristi se za hash-anje stringova i (mozda) za enkripciju
+    /// </summary>
     public static class Encryptor
     {
         public static string GetHashSha256(string text)

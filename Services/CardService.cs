@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SecuLink.ResponseModels;
 
 namespace SecuLink.Services
 {
@@ -25,17 +26,12 @@ namespace SecuLink.Services
             return c;
         }
 
-        public async Task<bool> Delete(string SerialNumber)
+        public async Task Delete(string SerialNumber)
         {
             var c = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
 
-            if (c is null)
-                return false;
-
             _dbcont.Cards.Remove(c);
             await _dbcont.SaveChangesAsync();
-
-            return true;
         }
 
         public async Task<Card> SelectByUserId(int UserId)
@@ -44,10 +40,13 @@ namespace SecuLink.Services
             return a;
         }
 
-        public async Task<Card> SelectBySerialNumber(string SerialNumber)
+        public async Task<List<CU>> GetList()
         {
-            var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
-            return a;
+            var cardList = await _dbcont.Cards.ToListAsync();
+            List<CU> list = new();
+            foreach (Card x in cardList)
+                list.Add(new() { SerialNumber = x.SerialNumber, Username = (await _dbcont.Users.FirstOrDefaultAsync(y => y.Id == x.UserId)).Username });
+            return list;
         }
     }
 }

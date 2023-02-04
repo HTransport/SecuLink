@@ -6,10 +6,10 @@ using SecuLink.Models;
 
 namespace SecuLink.RequestModels
 {
-    public class NUTE : NewUser
+    public class ConfirmForm
     {
-        public string Password_Enc { get; set; }
-        public string Token { get; set; }
-        public int EId { get; set; }
+        public string Username { get; set; }
+        public string Pin { get; set; }
+        public string Password { get; set; }
     }
 }

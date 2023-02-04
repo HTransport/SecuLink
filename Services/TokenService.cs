@@ -45,17 +45,26 @@ namespace SecuLink.Services
             return t;
         }
 
-        public async Task<bool> Delete(int UserId)
+        public async Task Delete(int UserId)
         {
             Token t = await _dbcont.Tokens.FirstOrDefaultAsync(a => a.UserId == UserId);
 
-            if (t is null)
-                return false;
-
             _dbcont.Tokens.Remove(t);
             await _dbcont.SaveChangesAsync();
+        }
 
-            return true;
+        public async Task<Token> SelectByContent(string Content)
+        {
+            try
+            {
+                Token t = await _dbcont.Tokens.SingleOrDefaultAsync(a => a.Content == Content);
+                return t;
+            }
+            catch (Exception)
+            {
+                Token t = null;
+                return t;
+            }
         }
 
         public async Task<Token> SelectByUserId(int UserId)

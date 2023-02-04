@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace SecuLink.RequestModels
 {
-    public class NTE
+    public class DeleteForm
     {
         public string Username { get; set; }
         public string Token { get; set; }
-        public int EId { get; set; }
     }
 }

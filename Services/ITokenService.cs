@@ -8,10 +8,11 @@ namespace SecuLink.Services
 {
     public interface ITokenService
     {
-        Task<bool> Delete(int UserId);
+        Task Delete(int UserId);
         Task<Token> Create(string Content, int TTL, DateTime DOC, int UserId );
         Task<Token> Create(string Content, DateTime DOC, int UserId);
         Task<Token> Create(string Content, int UserId);
         Task<Token> SelectByUserId(int UserId);
+        Task<Token> SelectByContent(string Content);
     }
 }

@@ -7,8 +7,9 @@ namespace SecuLink.Services
 {
     public interface IAuthService
     {
-        Task<bool> Authorize(string Username);
-        Task<bool> Unauthorize(string Username);
+        Task Authorize(string Username);
+        Task Unauthorize(string Username);
         Task<bool> CheckIfAuthorized(string Username);
+        Task<int> Authenticate(string token, ITokenService tokenService);
     }
 }

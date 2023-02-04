@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SecuLink.Tools;
+using SecuLink.ResponseModels;
 
 namespace SecuLink.Services
 {
@@ -16,27 +17,20 @@ namespace SecuLink.Services
         {
             _dbcont = dbcont;
         }
-        public async Task<User> Create(string Username, string Password_Enc)
+        public async Task Create(string Username, string FirstName, string LastName, bool Role, string Email, string Password_Enc)
         {
-            User u = new() { Username = Username, Password_Enc = Password_Enc};
+            User u = new() { Username = Username, FirstName = FirstName, LastName = LastName, Role = Role, Email = Email,  Password_Enc = Password_Enc};
 
             _dbcont.Users.Add(u);
             await _dbcont.SaveChangesAsync();
-
-            return u;
         }
 
-        public async Task<bool> Delete(int Id)
+        public async Task Delete(string Username)
         {
-            var a = await _dbcont.Users.FirstOrDefaultAsync(x => x.Id == Id);
-
-            if (a is null)
-                return false;
+            var a = await _dbcont.Users.FirstOrDefaultAsync(x => x.Username == Username);
 
             _dbcont.Users.Remove(a);
             await _dbcont.SaveChangesAsync();
-
-            return true;
         }
 
         public async Task<User> SelectByUsername(string Username)
@@ -45,20 +39,14 @@ namespace SecuLink.Services
             return a;
         }
 
-        public async Task<User> SelectById(int Id)
+        public async Task<string> CreateNew(string Username, string FirstName, string LastName, bool Role, string Email, string SerialNumber)
         {
-            var a = await _dbcont.Users.FirstOrDefaultAsync(a => a.Id == Id);
-            return a;
-        }
-
-        public async Task<NewUser> CreateNew(string Username)
-        {
-            NewUser u = new() { Username = Username, Pin = TokenGenerator.GeneratePin(8)};
+            NewUser u = new() { Username = Username, FirstName = FirstName, LastName = LastName, Role = Role, Email = Email, SerialNumber = SerialNumber, Pin = TokenGenerator.GeneratePin(8)};
 
             _dbcont.NewUsers.Add(u);
             await _dbcont.SaveChangesAsync();
 
-            return u;
+            return u.Pin;
         }
 
         public async Task<NewUser> SelectNewUserByUsername(string Username)
@@ -67,17 +55,46 @@ namespace SecuLink.Services
             return a;
         }
 
-        public async Task<bool> DeleteNew(string Username)
+        public async Task DeleteNew(string Username)
         {
             var a = await _dbcont.NewUsers.FirstOrDefaultAsync(a => a.Username == Username);
 
-            if (a is null)
-                return false;
-
             _dbcont.NewUsers.Remove(a);
             await _dbcont.SaveChangesAsync();
+        }
 
-            return true;
+        public async Task<List<UserListItem>> GetList()
+        {
+            var userList = await _dbcont.Users.ToListAsync();
+
+            List<UserListItem> list = new();
+            foreach(User u in userList)
+            {
+                list.Add(new() { Id = u.Id, FirstName = u.FirstName, LastName = u.LastName, Role = u.Role, Email = u.Email});
+            }
+
+            return list;
+        }
+
+        public async Task<List<NewUser>> GetListNew()
+        {
+            var list = await _dbcont.NewUsers.ToListAsync();
+            return list;
+        }
+
+        public async Task Edit(string CurrentUsername, string Username, string FirstName, string LastName, bool Role, string Email)
+        {
+            var u = await _dbcont.Users.FirstOrDefaultAsync(a => a.Username == CurrentUsername);
+            if (Username is not null && Username != "")
+                u.Username = Username;
+            if (FirstName is not null && FirstName != "")
+                u.FirstName = FirstName;
+            if (LastName is not null && LastName != "")
+                u.LastName = LastName;
+            u.Role = Role;
+            if (Email is not null && Email != "")
+                u.Email = Email;
+            await _dbcont.SaveChangesAsync();
         }
     }
 }

@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using SecuLink.Services;
 using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +22,8 @@ namespace SecuLink
 {
     public class Startup
     {
+        private readonly string Name = "React";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -30,13 +34,6 @@ namespace SecuLink
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy => 
-                {
-                    policy.WithOrigins("http://localhost:3000"); // origins mijenjas tu - JAKO BITNO
-                });
-            });
             services.AddControllers();
             services.AddDbContext<Models.ApplicationDbContext>(options=>options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -44,6 +41,61 @@ namespace SecuLink
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICardService, CardService>();
             services.AddScoped<IAuthService, AuthService>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: Name,
+                                  policy =>
+                                  {
+                                      policy.SetIsOriginAllowed(MyIsOriginAllowed)
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                                      static bool MyIsOriginAllowed(string origin)
+                                      {
+                                          if (origin == "http://localhost:3000")
+                                              return true;
+
+                                          string localIP = GetLocalIPAddress();
+                                          string networkID = "";
+                                          int byteCount = 0;
+                                          for (int i = 0; i < localIP.Length; i++)
+                                          {
+                                              networkID += localIP[i].ToString();
+                                              if (localIP[i].ToString() == ".")
+                                                  byteCount++;
+                                              if (byteCount == 3)
+                                                  break;
+                                          }
+
+                                          for (int i = 1; i < 255; i++)
+                                          {
+                                              if (origin == "http://" +  networkID + i.ToString())
+                                                  return true;
+                                          }
+                                          for (int i = 1; i < 255; i++)
+                                          {
+                                              if (origin == "https://" + networkID + i.ToString())
+                                                  return true;
+                                          }
+
+                                          return false;
+                                      }
+                                      static string GetLocalIPAddress()
+                                      {
+                                          var host = Dns.GetHostEntry(Dns.GetHostName());
+                                          foreach (var ip in host.AddressList)
+                                          {
+                                              string firstByte = ip.ToString()[0].ToString() + ip.ToString()[1].ToString() + ip.ToString()[2].ToString();
+                                              if (ip.AddressFamily == AddressFamily.InterNetwork && firstByte == "192")
+                                              {
+                                                  return ip.ToString();
+                                              }
+                                          }
+                                          return "";
+                                      }
+                                  });
+                
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,11 +106,11 @@ namespace SecuLink
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseCors();
+            app.UseCors(Name);
 
             app.UseHttpsRedirection();
 
@@ -71,8 +123,6 @@ namespace SecuLink
         }
         public static void Register(HttpConfiguration config)
         {
-            config.EnableCors();
-
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
