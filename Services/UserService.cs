@@ -33,6 +33,12 @@ namespace SecuLink.Services
             await _dbcont.SaveChangesAsync();
         }
 
+        public async Task<User> SelectById(int Id)
+        {
+            var a = await _dbcont.Users.FirstOrDefaultAsync(a => a.Id == Id);
+            return a;
+        }
+
         public async Task<User> SelectByUsername(string Username)
         {
             var a = await _dbcont.Users.FirstOrDefaultAsync(a => a.Username == Username);
@@ -70,7 +76,7 @@ namespace SecuLink.Services
             List<UserListItem> list = new();
             foreach(User u in userList)
             {
-                list.Add(new() { Id = u.Id, FirstName = u.FirstName, LastName = u.LastName, Role = u.Role, Email = u.Email});
+                list.Add(new() { Id = u.Id,Username = u.Username, FirstName = u.FirstName, LastName = u.LastName, Role = u.Role, Email = u.Email});
             }
 
             return list;
@@ -87,13 +93,18 @@ namespace SecuLink.Services
             var u = await _dbcont.Users.FirstOrDefaultAsync(a => a.Username == CurrentUsername);
             if (Username is not null && Username != "")
                 u.Username = Username;
+
             if (FirstName is not null && FirstName != "")
                 u.FirstName = FirstName;
+
             if (LastName is not null && LastName != "")
                 u.LastName = LastName;
+
             u.Role = Role;
+
             if (Email is not null && Email != "")
                 u.Email = Email;
+
             await _dbcont.SaveChangesAsync();
         }
     }

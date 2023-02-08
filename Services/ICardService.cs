@@ -11,7 +11,9 @@ namespace SecuLink.Services
     {
         Task Delete(string SerialNumber);
         Task<Card> Create(string SerialNumber, int UserId);
+        Task Edit(string SerialNumber);
         Task<Card> SelectByUserId(int UserId);
+        Task<Card> SelectBySerialNumber(string SerialNumber);
         Task<List<CU>> GetList();
     }
 }

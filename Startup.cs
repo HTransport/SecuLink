@@ -22,7 +22,7 @@ namespace SecuLink
 {
     public class Startup
     {
-        private readonly string Name = "React";
+        private readonly string Name = "local";
 
         public Startup(IConfiguration configuration)
         {
@@ -41,6 +41,8 @@ namespace SecuLink
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICardService, CardService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ILogService, LogService>();
+
 
             services.AddCors(options =>
             {

@@ -26,6 +26,15 @@ namespace SecuLink.Services
             return c;
         }
 
+        public async Task Edit(string SerialNumber)
+        {
+            var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
+
+            a.SerialNumber = SerialNumber;
+
+            await _dbcont.SaveChangesAsync();
+        }
+
         public async Task Delete(string SerialNumber)
         {
             var c = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
@@ -37,6 +46,14 @@ namespace SecuLink.Services
         public async Task<Card> SelectByUserId(int UserId)
         {
             var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.UserId == UserId);
+
+            return a;
+        }
+        
+        public async Task<Card> SelectBySerialNumber(string SerialNumber)
+        {
+            var a = await _dbcont.Cards.FirstOrDefaultAsync(card => card.SerialNumber == SerialNumber);
+
             return a;
         }
 

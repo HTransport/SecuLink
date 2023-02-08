@@ -10,7 +10,7 @@ using SecuLink.Models;
 namespace SecuLink.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230204000559_init")]
+    [Migration("20230206040624_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,27 @@ namespace SecuLink.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Cards");
+                });
+
+            modelBuilder.Entity("SecuLink.Models.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("DOC")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MAC")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SerialNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("SecuLink.Models.NewUser", b =>
@@ -72,6 +93,24 @@ namespace SecuLink.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("NewUsers");
+                });
+
+            modelBuilder.Entity("SecuLink.Models.Reader", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("MAC")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Role")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Readers");
                 });
 
             modelBuilder.Entity("SecuLink.Models.Token", b =>

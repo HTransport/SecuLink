@@ -16,6 +16,9 @@ namespace SecuLink.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Card> Cards { get; set; }
         public DbSet<Token> Tokens { get; set; }
+        public DbSet<Log> Logs { get; set; }
+        public DbSet<Reader> Readers { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

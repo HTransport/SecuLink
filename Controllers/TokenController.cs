@@ -12,7 +12,7 @@ namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [EnableCors("React")]
+    [EnableCors("local")]
     public class TokenController : ControllerBase
     {
         private readonly IUserService _userService;

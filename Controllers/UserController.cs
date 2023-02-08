@@ -14,7 +14,7 @@ namespace SecuLink.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [EnableCors("React")]
+    [EnableCors("local")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -95,6 +95,13 @@ namespace SecuLink.Controllers
 
             await _userService.Edit(user.CurrentUsername, user.Username, user.FirstName, user.LastName, u.Role, user.Email);
 
+            var c = await _cardService.SelectBySerialNumber(user.SerialNumber);
+
+            if (c is null)
+                return StatusCode(404);
+
+            await _cardService.Edit(user.SerialNumber);
+
             return Ok();
         } // 0
 
@@ -126,7 +133,7 @@ namespace SecuLink.Controllers
 
         [HttpPost]
         [Route("delete/new")]
-        public async Task<IActionResult> DeleteNewUser([FromBody] CreateForm user)
+        public async Task<IActionResult> DeleteNewUser([FromBody] DeleteForm user)
         {
             var result = await _authService.Authenticate(user.Token, _tokenService);
             if (result != 200)
@@ -170,7 +177,7 @@ namespace SecuLink.Controllers
                 return Problem(ex.ToString());
             }
             return Ok(outList);
-        } // 1
+        } // 0
 
         [HttpPost]
         [Route("listnew")]
@@ -222,8 +229,9 @@ namespace SecuLink.Controllers
                 await _tokenService.Delete(t.UserId);
 
             string token = TokenGenerator.GenerateBasic(u.Username);
-            await _tokenService.Create(token, u.Id);
-
+            if(!await _authService.CheckIfAuthorized(u.Username))
+                await _tokenService.Create(token, u.Id);
+            else await _tokenService.Create(token, 600, DateTime.Now, u.Id);
             return Ok(new TR(token, await _authService.CheckIfAuthorized(u.Username), u.Username));
         } // 0
     }

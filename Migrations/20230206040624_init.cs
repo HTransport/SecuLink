@@ -8,6 +8,21 @@ namespace SecuLink.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Logs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SerialNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MAC = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DOC = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NewUsers",
                 columns: table => new
                 {
@@ -27,6 +42,20 @@ namespace SecuLink.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Readers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MAC = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Role = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Readers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -43,6 +72,7 @@ namespace SecuLink.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
+
             migrationBuilder.CreateTable(
                 name: "Tokens",
                 columns: table => new
@@ -89,6 +119,7 @@ namespace SecuLink.Migrations
                 name: "IX_Cards_UserId",
                 table: "Cards",
                 column: "UserId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Tokens_UserId",
                 table: "Tokens",
@@ -101,7 +132,13 @@ namespace SecuLink.Migrations
                 name: "Cards");
 
             migrationBuilder.DropTable(
+                name: "Logs");
+
+            migrationBuilder.DropTable(
                 name: "NewUsers");
+
+            migrationBuilder.DropTable(
+                name: "Readers");
 
             migrationBuilder.DropTable(
                 name: "Tokens");

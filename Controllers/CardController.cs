@@ -11,22 +11,17 @@ using SecuLink.Tools;
 
 namespace SecuLink.Controllers
 {
-    //
-    // UKLANJANJE??
-    //
     [ApiController]
     [Route("api/[controller]")]
-    [EnableCors("React")]
+    [EnableCors("local")]
     public class CardController : ControllerBase
     {
-        private readonly IUserService _userService;
         private readonly ICardService _cardService;
         private readonly ITokenService _tokenService;
         private readonly IAuthService _authService;
 
-        public CardController(IUserService userService, ICardService cardService, ITokenService tokenService, IAuthService authService)
+        public CardController(ICardService cardService, ITokenService tokenService, IAuthService authService)
         {
-            _userService = userService;
             _cardService = cardService;
             _tokenService = tokenService;
             _authService = authService;

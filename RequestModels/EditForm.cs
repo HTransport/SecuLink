@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace SecuLink.RequestModels
+﻿namespace SecuLink.RequestModels
 {
     public class EditForm
     {
@@ -14,5 +9,6 @@ namespace SecuLink.RequestModels
         public string LastName { get; set; }
         public bool Role { get; set; }
         public string Email { get; set; }
+        public string SerialNumber { get; set; }
     }
 }

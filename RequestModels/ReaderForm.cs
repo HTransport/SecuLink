@@ -1,8 +1,8 @@
 ﻿namespace SecuLink.RequestModels
 {
-    public class DeleteForm
+    public class ReaderForm
     {
-        public string Username { get; set; }
+        public string MAC { get; set; }
         public string Token { get; set; }
     }
 }

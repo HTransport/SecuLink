@@ -14,6 +14,7 @@ namespace SecuLink.Services
         Task Edit(string CurrentUsername, string Username, string FirstName, string LastName, bool Role, string Email);
         Task Delete(string Username);
         Task DeleteNew(string Username);
+        Task<User> SelectById(int Id);
         Task<User> SelectByUsername(string Username);
         Task<NewUser> SelectNewUserByUsername(string Username);
         Task<List<UserListItem>> GetList();

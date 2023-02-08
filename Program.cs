@@ -15,6 +15,7 @@ namespace SecuLink
         public static void Main(string[] args)
         {
             CurrentState.ResetLS();
+            Encryptor.IV = "9.6.2004WiZ%ht%11-7-2004%SCLNKENc";
             CreateHostBuilder(args).Build().Run();
         }
 
